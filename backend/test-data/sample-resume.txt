@@ -1,0 +1,71 @@
+John Doe
+Software Developer
+john.doe@email.com | +1-234-567-8900
+LinkedIn: linkedin.com/in/johndoe | GitHub: github.com/johndoe
+
+SUMMARY
+Experienced full-stack developer with 3 years of experience in web development. 
+Passionate about creating scalable applications and learning new technologies.
+
+TECHNICAL SKILLS
+Programming Languages: JavaScript, Python, Java, TypeScript
+Frontend: React, Angular, Vue.js, HTML5, CSS3, Bootstrap, Tailwind CSS
+Backend: Node.js, Express, Django, Flask, Spring Boot
+Databases: MongoDB, PostgreSQL, MySQL, Redis
+Cloud & DevOps: AWS, Docker, Kubernetes, Jenkins, Git, GitHub Actions
+Tools: Git, Postman, Jira, VS Code, IntelliJ IDEA
+
+WORK EXPERIENCE
+
+Software Developer | ABC Tech Solutions | June 2021 - Present
+• Developed and maintained web applications using React and Node.js
+• Collaborated with cross-functional teams to deliver high-quality software solutions
+• Implemented RESTful APIs and integrated third-party services
+• Optimized application performance resulting in 40% faster load times
+• Mentored junior developers and conducted code reviews
+
+Junior Developer | XYZ Startup | January 2021 - May 2021
+• Built responsive web interfaces using React and CSS frameworks
+• Worked with MongoDB for data storage and retrieval
+• Participated in agile development processes and daily standups
+• Contributed to open-source projects and internal tools
+
+EDUCATION
+
+Bachelor of Technology in Computer Science
+State University | 2017 - 2021
+CGPA: 8.5/10
+
+Relevant Coursework: Data Structures, Algorithms, Database Management, 
+Software Engineering, Web Development, Machine Learning
+
+PROJECTS
+
+E-commerce Platform
+• Developed a full-stack e-commerce website using React, Node.js, and MongoDB
+• Implemented user authentication, payment processing, and order management
+• Deployed on AWS with CI/CD pipeline using GitHub Actions
+• Technologies: React, Node.js, Express, MongoDB, Stripe API, AWS
+
+Task Management Application
+• Built a collaborative task management tool with real-time updates
+• Implemented WebSocket connections for live collaboration features
+• Created responsive design supporting mobile and desktop devices
+• Technologies: React, Socket.io, Express, PostgreSQL, Material-UI
+
+Weather Dashboard
+• Developed a weather monitoring dashboard with data visualization
+• Integrated multiple weather APIs for comprehensive weather data
+• Implemented caching mechanisms for improved performance
+• Technologies: Vue.js, Python, Flask, Chart.js, Redis
+
+CERTIFICATIONS
+• AWS Certified Developer Associate (2022)
+• MongoDB Certified Developer (2021)
+• Google Analytics Certified (2021)
+
+ACHIEVEMENTS
+• Winner of University Hackathon 2020
+• Contributed to 5+ open-source projects with 100+ GitHub stars
+• Published technical blog posts with 10K+ views
+• Volunteer coding instructor for local community programs

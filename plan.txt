@@ -1,0 +1,337 @@
+Complete Project Plan — Smart Interview Prep (Lean MVP)
+
+Below is a single, self-contained, developer-ready plan covering scope, tech stack, architecture, APIs, prompts, folder structure, .env, implementation checklist, QA, deployment notes, and future improvements. I avoided timelines (you asked “fast”; this plan is ordered so you can execute tasks sequentially).
+
+1 — Goal (MVP)
+
+Build a lean web app that enables a user (no auth) to:
+
+Upload a resume (PDF/DOCX).
+
+See parsed highlights (skills, experience, education, projects).
+
+Ask the system to generate interview questions (role + level → 1 intro + 5 role-based + 2 open-ended).
+Keep it minimal, reliable, and fast to implement.
+
+2 — High-level Phases (ordered, no durations)
+
+Phase A — Core MVP
+
+Frontend UI for upload + role/level selection + results view
+
+Backend API for file upload and parsing (local parsing)
+
+Integration with OpenAI API for question generation
+
+Local file storage (no DB required)
+
+Phase B — Improve Parsing
+
+Optionally add Python spaCy service or improved parsing
+
+More robust parsing edge-cases (DOCX tables, multi-column)
+
+Phase C — Persist & Scale (optional)
+
+Add MongoDB for resume/session persistence
+
+Add simple auth if required
+
+Move file storage to S3/MinIO, CI/CD, monitoring
+
+3 — Tech Stack (recommended)
+
+Frontend: React (Vite), Material UI (or Tailwind)
+
+Backend: Node.js + Express
+
+Resume parsing (fast MVP): pdf-parse for PDFs, mammoth for DOCX (or docx parser)
+
+File upload: multer (Express)
+
+AI: OpenAI (Chat Completions / Responses API)
+
+Storage: Local directory (uploads/) initially
+
+Optional enhancement: Python FastAPI + spaCy microservice for NER/resume parsing
+
+Optional DB: MongoDB (Atlas) if you need persistence
+
+4 — Environment Variables (.env)
+
+Minimal set for MVP:
+
+# backend
+PORT=5000
+NODE_ENV=development
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# File uploads
+UPLOAD_DIR=uploads
+
+# Optional: MongoDB (only if you decide to persist)
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/interview
+
+
+Later additions (when scaling):
+
+JWT_SECRET=...
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+S3_BUCKET_NAME=...
+
+5 — System Architecture (simple)
+
+Frontend (React) <--> Backend (Express)
+
+POST /api/resume : upload file → parse → return highlights
+
+POST /api/questions: send role + level + parsed summary → OpenAI → return Qs
+
+(Optionally) Backend calls Python parsing microservice:
+
+Express → HTTP → FastAPI (spaCy) → returns structured JSON
+
+Keep everything stateless; parsed result returned to client and optionally kept in memory/session if user stays on page.
+
+6 — API Specification (detailed)
+POST /api/resume
+
+Purpose: Accept resume file, extract text, compute highlights.
+
+Request: form-data: file (PDF or DOCX)
+
+Response (200):
+
+{
+  "text": "full extracted text (string)",
+  "skills": ["React", "Node.js", "MongoDB"],
+  "experience": "2 years",
+  "education": ["B.Tech Computer Science"],
+  "projects": [
+    { "title": "TeamBoard", "summary": "..." }
+  ],
+  "raw": { /* optional debug info */ }
+}
+
+
+Error codes: 400 (no file), 415 (unsupported format), 500 (parsing error)
+
+POST /api/questions
+
+Purpose: Generate interview questions using OpenAI.
+
+Request (JSON):
+
+{
+  "role": "Frontend Engineer",
+  "level": "fresher",    // one of: fresher | intermediate | experienced
+  "resumeSummary": {
+    "skills": [...],
+    "experience": "...",
+    "projects": [...]
+  }
+}
+
+
+Response (200):
+
+{
+  "intro": "Tell me about yourself and why you're interested in frontend engineering.",
+  "roleQuestions": [
+    "Question 1",
+    "Question 2",
+    ...
+  ],
+  "openEnded": [
+    "Open 1",
+    "Open 2"
+  ],
+  "metadata": { "promptUsed": "..." }
+}
+
+
+Error codes: 400 (bad input), 502 (OpenAI error), 500 (server error)
+
+7 — Prompt Templates (OpenAI) — concrete and reusable
+
+Use a single structured prompt with instruction-following model (include system+user format). Keep the prompt deterministic and include resume highlights so answers are personalized.
+
+System message (example):
+
+You are an interview assistant that generates interview questions tailored to a candidate's resume and the requested role and experience level. Return JSON only with keys: intro, roleQuestions (array of 5), openEnded (array of 2).
+
+
+User prompt (example):
+
+Role: Frontend Engineer
+Level: fresher
+Resume highlights:
+- Skills: React, Redux, JavaScript, HTML, CSS
+- Experience: Intern at Acme Corp (6 months)
+- Projects: TeamBoard (todo app with React)
+Generate:
+- 1 brief intro question
+- 5 role-based technical questions (progressing from easy to medium)
+- 2 open-ended behavioral questions
+Return only valid JSON.
+
+
+Alternative concise prompt for chat/completions:
+
+You are an interview question generator. Inputs:
+ROLE: {role}
+LEVEL: {level}
+HIGHLIGHTS: {text or bullet list}
+
+Output JSON:
+{
+  "intro": "...",
+  "roleQuestions": ["...", "...", "...", "...", "..."],
+  "openEnded": ["...", "..."]
+}
+Make roleQuestions relevant to the highlights and level. Keep each question concise.
+
+
+Important: Validate OpenAI output server-side (ensure it's JSON) and fall back to a safe default if parsing fails.
+
+8 — Frontend UX & Wireframes (textual)
+
+Pages/components:
+
+Landing / Upload
+
+File input (drag & drop + browse)
+
+Role select (dropdown)
+
+Level select (fresher/intermediate/experienced)
+
+“Parse & Generate” button
+
+Parsing Result (same page or modal)
+
+Chips/tags for skills, education, experience
+
+Raw extracted text preview (toggle)
+
+“Generate Questions” button (if parse done separately)
+
+Questions View
+
+Card for Intro question
+
+List of 5 role-based Qs with “mark as practiced” toggle
+
+Two open-ended Qs
+
+“Regenerate” button (re-run OpenAI with same inputs)
+
+UI behavior:
+
+Use optimistic UI: show loader while parsing / generating
+
+Error banner on failures
+
+Copy-to-clipboard for questions
+
+9 — Folder Structure (starter)
+smart-interview-mvp/
+├─ backend/
+│  ├─ src/
+│  │  ├─ index.js            // express app
+│  │  ├─ routes/
+│  │  │  ├─ resume.js
+│  │  │  └─ questions.js
+│  │  ├─ services/
+│  │  │  ├─ parser.js       // pdf-parse / docx extraction logic
+│  │  │  └─ openai.js       // wrapper around OpenAI calls
+│  │  └─ utils/
+│  │     └─ textCleaner.js
+│  ├─ uploads/               // .gitignore
+│  └─ package.json
+├─ frontend/
+│  ├─ src/
+│  │  ├─ App.jsx
+│  │  ├─ pages/
+│  │  │  ├─ UploadPage.jsx
+│  │  │  └─ QuestionsPage.jsx
+│  │  ├─ components/
+│  │  └─ api/
+│  │     └─ client.js       // axios baseURL
+│  └─ package.json
+└─ README.md
+
+10 — Implementation Checklist (detailed tasks)
+
+Backend
+
+ Initialize Node project, install express, multer, pdf-parse, axios (for OpenAI), dotenv
+
+ Add .env support, server start script
+
+ Implement /api/resume:
+
+multer file handling
+
+pdf-parse for text extraction
+
+docx handling with mammoth or similar
+
+simple highlights extraction: run heuristics & regex for:
+
+skills (match against curated skill list)
+
+education keywords (B.Tech, MSc, etc.)
+
+experience (look for “X years”, dates)
+
+projects (capitalized titles + preceding verbs)
+
+ Implement /api/questions:
+
+Construct prompt using parsed highlights and role+level
+
+Call OpenAI API
+
+Validate & sanitize response (parse JSON)
+
+ Add errors and logging
+
+Frontend
+
+ Scaffold React app, install Material UI
+
+ Build upload form & role+level selects
+
+ Call POST /api/resume, show highlights
+
+ Call POST /api/questions, display questions
+
+ Add loaders and error UI
+
+ Mobile-responsive layout
+
+Testing
+
+ Unit test parser functions (small sample resumes)
+
+ Manual tests with varied resume formats (PDF single column, multi-column, DOCX)
+
+ Test OpenAI output for JSON parseability and fallback
+
+Deployment
+
+ Choose hosting:
+
+Frontend: Vercel / Netlify
+
+Backend: Render / Heroku (simple deployments)
+
+ Setup environment variables on host (OPENAI_API_KEY, PORT)
+
+ Ensure uploads directory exists and is writable (or configure S3 later)
+
+ Configure CORS on backend to allow frontend origin
